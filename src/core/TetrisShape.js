@@ -8,8 +8,8 @@ class TetrisShape extends createjs.Container {
         super();
 
         this.actualBlockPositions = [];
-        this._data = new ShapeData(shapeName);
-        this._data.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
+        this._shapeData = new ShapeData(shapeName);
+        this._shapeData.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
 
         this.init();
     }
@@ -22,11 +22,13 @@ class TetrisShape extends createjs.Container {
 
     init()
     {
-        this.block0 = new Block(new createjs.Point());
-        this.block1 = new Block(new createjs.Point());
-        this.block2 = new Block(new createjs.Point());
-        this.block3 = new Block(new createjs.Point());
+        const imagePath = this._shapeData.imagePath;
 
+        this.block0 = new Block(new createjs.Point(), imagePath);
+        this.block1 = new Block(new createjs.Point(), imagePath);
+        this.block2 = new Block(new createjs.Point(), imagePath);
+        this.block3 = new Block(new createjs.Point(), imagePath);
+        
         this.addChild(this.block0);
         this.addChild(this.block1);
         this.addChild(this.block2);
@@ -35,7 +37,7 @@ class TetrisShape extends createjs.Container {
         this.updateShapeBlockPositions();
         this.drawShape();
 
-        //this.cache(0, 0, this.width, this.height);
+        //this.cache(this.x, this.y, this.getBounds().width, this.getBounds().height);
     }
 
     drawShape()
@@ -48,7 +50,7 @@ class TetrisShape extends createjs.Container {
 
     updateShapeBlockPositions()
     {
-        let blockPoints = this._data.currentBlocks;
+        let blockPoints = this._shapeData.currentBlocks;
         this.actualBlockPositions.length = 0;
 
         for (let i = 0; i < blockPoints.length; i++)

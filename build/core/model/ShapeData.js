@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -13,6 +13,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var ROTATION_STATE_CHANGED = "rotationStateChanged";
+var IMAGE_PATH = "./images/";
+
 var J = 'J';
 var L = 'L';
 var I = 'I';
@@ -25,42 +27,47 @@ var ShapeData = function (_createjs$EventDispat) {
     _inherits(ShapeData, _createjs$EventDispat);
 
     _createClass(ShapeData, null, [{
-        key: 'ROTATION_STATE_CHANGED',
+        key: "ROTATION_STATE_CHANGED",
         get: function get() {
             return ROTATION_STATE_CHANGED;
         }
     }, {
-        key: 'J',
+        key: "IMAGE_PATH",
+        get: function get() {
+            return IMAGE_PATH;
+        }
+    }, {
+        key: "J",
         get: function get() {
             return J;
         }
     }, {
-        key: 'L',
+        key: "L",
         get: function get() {
             return L;
         }
     }, {
-        key: 'I',
+        key: "I",
         get: function get() {
             return I;
         }
     }, {
-        key: 'T',
+        key: "T",
         get: function get() {
             return T;
         }
     }, {
-        key: 'O',
+        key: "O",
         get: function get() {
             return O;
         }
     }, {
-        key: 'S',
+        key: "S",
         get: function get() {
             return S;
         }
     }, {
-        key: 'Z',
+        key: "Z",
         get: function get() {
             return Z;
         }
@@ -70,6 +77,8 @@ var ShapeData = function (_createjs$EventDispat) {
         _classCallCheck(this, ShapeData);
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ShapeData).call(this));
+
+        _this.imagePath = "";
 
         _this._rotation0 = [];
         _this._rotation1 = [];
@@ -84,7 +93,7 @@ var ShapeData = function (_createjs$EventDispat) {
     }
 
     _createClass(ShapeData, [{
-        key: 'createShapeData',
+        key: "createShapeData",
         value: function createShapeData(type) {
             //instead of factory method
             this["createShape" + type]();
@@ -93,68 +102,89 @@ var ShapeData = function (_createjs$EventDispat) {
         // getting current shape blocks state
 
     }, {
-        key: 'createShapeL',
+        key: "createShapeL",
         value: function createShapeL() {
+            var imageName = "block_orange.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation2 = [[0, 1, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 0]];
             this._rotation3 = [[0, 0, 0, 0], [1, 1, 1, 0], [1, 0, 0, 0], [0, 0, 0, 0]];
         }
     }, {
-        key: 'createShapeJ',
+        key: "createShapeJ",
         value: function createShapeJ() {
+            var imageName = "block_blue.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation2 = [[1, 1, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0]];
             this._rotation3 = [[0, 0, 0, 0], [1, 1, 1, 0], [0, 0, 1, 0], [0, 0, 0, 0]];
         }
     }, {
-        key: 'createShapeI',
+        key: "createShapeI",
         value: function createShapeI() {
+            var imageName = "block_cyan.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]];
             this._rotation2 = [[0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0]];
             this._rotation3 = [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]];
         }
     }, {
-        key: 'createShapeT',
+        key: "createShapeT",
         value: function createShapeT() {
+            var imageName = "block_purple.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 1, 0, 0]];
             this._rotation2 = [[0, 1, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
             this._rotation3 = [[0, 1, 0, 0], [1, 1, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
         }
     }, {
-        key: 'createShapeS',
+        key: "createShapeS",
         value: function createShapeS() {
+            var imageName = "block_green.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0]];
             this._rotation2 = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 1, 1, 0], [1, 1, 0, 0]];
             this._rotation3 = [[1, 0, 0, 0], [1, 1, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
         }
     }, {
-        key: 'createShapeZ',
+        key: "createShapeZ",
         value: function createShapeZ() {
+            var imageName = "block_red.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation2 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 0, 1, 1], [0, 0, 0, 0]];
             this._rotation3 = [[0, 0, 0, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0]];
         }
     }, {
-        key: 'createShapeO',
+        key: "createShapeO",
         value: function createShapeO() {
+            var imageName = "block_yellow.png";
+            this.imagePath = IMAGE_PATH + imageName;
+
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation2 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation3 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
         }
     }, {
-        key: 'currentBlocks',
+        key: "currentBlocks",
         get: function get() {
             return this["_rotation" + this._rotationValue];
         }
     }, {
-        key: 'rotationValue',
+        key: "rotationValue",
         get: function get() {
             return this._rotationValue;
         },

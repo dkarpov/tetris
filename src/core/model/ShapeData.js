@@ -1,4 +1,6 @@
 const ROTATION_STATE_CHANGED = "rotationStateChanged";
+const IMAGE_PATH = "./images/";
+
 const J = 'J';
 const L = 'L';
 const I = 'I';
@@ -10,6 +12,7 @@ const Z = 'Z';
 class ShapeData extends createjs.EventDispatcher
 {
     static get ROTATION_STATE_CHANGED() { return ROTATION_STATE_CHANGED; }
+    static get IMAGE_PATH() {return IMAGE_PATH; }
     static get J() { return J; }
     static get L() { return L; }
     static get I() { return I; }
@@ -21,6 +24,8 @@ class ShapeData extends createjs.EventDispatcher
     constructor(type)
     {
         super();
+
+        this.imagePath = "";
 
         this._rotation0 = [];
         this._rotation1 = [];
@@ -61,6 +66,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeL()
     {
+        const imageName = "block_orange.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 1, 0, 0],
             [0, 1, 0, 0],
             [0, 1, 1, 0],
@@ -81,6 +89,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeJ()
     {
+        const imageName = "block_blue.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 1, 0, 0],
             [0, 1, 0, 0],
             [1, 1, 0, 0],
@@ -101,6 +112,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeI()
     {
+        const imageName = "block_cyan.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 1, 0, 0],
             [0, 1, 0, 0],
             [0, 1, 0, 0],
@@ -121,6 +135,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeT()
     {
+        const imageName = "block_purple.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 0, 0, 0],
             [1, 1, 1, 0],
             [0, 1, 0, 0],
@@ -141,6 +158,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeS()
     {
+        const imageName = "block_green.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 0, 0, 0],
             [0, 1,1, 0],
             [1, 1, 0, 0],
@@ -161,6 +181,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeZ()
     {
+        const imageName = "block_red.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 0, 0, 0],
             [1, 1, 0, 0],
             [0, 1, 1, 0],
@@ -181,6 +204,9 @@ class ShapeData extends createjs.EventDispatcher
 
     createShapeO()
     {
+        const imageName = "block_yellow.png";
+        this.imagePath = IMAGE_PATH + imageName;
+
         this._rotation0 = [[0, 0, 0, 0],
             [0, 1, 1, 0],
             [0, 1, 1, 0],

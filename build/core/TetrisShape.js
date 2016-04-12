@@ -31,8 +31,8 @@ var TetrisShape = function (_createjs$Container) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TetrisShape).call(this));
 
         _this.actualBlockPositions = [];
-        _this._data = new _ShapeData2.default(shapeName);
-        _this._data.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
+        _this._shapeData = new _ShapeData2.default(shapeName);
+        _this._shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
         _this.init();
         return _this;
@@ -47,10 +47,12 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "init",
         value: function init() {
-            this.block0 = new _Block2.default(new createjs.Point());
-            this.block1 = new _Block2.default(new createjs.Point());
-            this.block2 = new _Block2.default(new createjs.Point());
-            this.block3 = new _Block2.default(new createjs.Point());
+            var imagePath = this._shapeData.imagePath;
+
+            this.block0 = new _Block2.default(new createjs.Point(), imagePath);
+            this.block1 = new _Block2.default(new createjs.Point(), imagePath);
+            this.block2 = new _Block2.default(new createjs.Point(), imagePath);
+            this.block3 = new _Block2.default(new createjs.Point(), imagePath);
 
             this.addChild(this.block0);
             this.addChild(this.block1);
@@ -60,7 +62,7 @@ var TetrisShape = function (_createjs$Container) {
             this.updateShapeBlockPositions();
             this.drawShape();
 
-            //this.cache(0, 0, this.width, this.height);
+            //this.cache(this.x, this.y, this.getBounds().width, this.getBounds().height);
         }
     }, {
         key: "drawShape",
@@ -73,7 +75,7 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "updateShapeBlockPositions",
         value: function updateShapeBlockPositions() {
-            var blockPoints = this._data.currentBlocks;
+            var blockPoints = this._shapeData.currentBlocks;
             this.actualBlockPositions.length = 0;
 
             for (var i = 0; i < blockPoints.length; i++) {

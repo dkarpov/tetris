@@ -12,31 +12,25 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Block = function (_createjs$Shape) {
-    _inherits(Block, _createjs$Shape);
+var Block = function (_createjs$Bitmap) {
+    _inherits(Block, _createjs$Bitmap);
 
     function Block(position, imagePath) {
         _classCallCheck(this, Block);
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Block).call(this, imagePath));
 
-        _this.size = 20;
+        _this.size = 16;
         _this._position = position;
         return _this;
     }
 
     _createClass(Block, [{
-        key: "drawBlock",
-        value: function drawBlock() {
-            var position = this._position;
-            var size = this.size;
-
-            this.graphics.clear();
-            this.graphics.setStrokeStyle(1);
-            this.graphics.beginStroke("#FFFFFF");
-            this.graphics.beginFill(0xFFFF00);
-            this.graphics.drawRect(position.x * size, position.y * size, size, size);
-            this.graphics.endFill();
+        key: "moveBlock",
+        value: function moveBlock() {
+            this.x = this._position.x * this.size;
+            this.y = this._position.y * this.size;
+            this.width = this.height = this.size;
         }
     }, {
         key: "updatePosition",
@@ -46,12 +40,12 @@ var Block = function (_createjs$Shape) {
             var position = this._position;
             var size = this.size;
 
-            this.drawBlock();
+            this.moveBlock();
             this.setBounds(position.x * size, position.y * size, size, size);
         }
     }]);
 
     return Block;
-}(createjs.Shape);
+}(createjs.Bitmap);
 
 exports.default = createjs.promote(Block, "Shape");
