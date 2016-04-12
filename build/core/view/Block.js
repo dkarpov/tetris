@@ -15,12 +15,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Block = function (_createjs$Bitmap) {
     _inherits(Block, _createjs$Bitmap);
 
+    _createClass(Block, null, [{
+        key: "BLOCK_SIZE",
+        get: function get() {
+            return 16;
+        }
+    }]);
+
     function Block(position, imagePath) {
         _classCallCheck(this, Block);
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Block).call(this, imagePath));
 
-        _this.size = 16;
+        _this.size = Block.BLOCK_SIZE;
         _this._position = position;
         return _this;
     }

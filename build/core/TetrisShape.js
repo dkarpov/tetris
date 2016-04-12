@@ -31,23 +31,19 @@ var TetrisShape = function (_createjs$Container) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TetrisShape).call(this));
 
         _this.actualBlockPositions = [];
-        _this._shapeData = new _ShapeData2.default(shapeName);
-        _this._shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
+        _this.shapeData = new _ShapeData2.default(shapeName);
+
+        _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
+        _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
         _this.init();
         return _this;
     }
 
     _createClass(TetrisShape, [{
-        key: "onRotationStateChanged",
-        value: function onRotationStateChanged(event) {
-            this.updateShapeBlockPositions();
-            this.drawShape();
-        }
-    }, {
         key: "init",
         value: function init() {
-            var imagePath = this._shapeData.imagePath;
+            var imagePath = this.shapeData.imagePath;
 
             this.block0 = new _Block2.default(new createjs.Point(), imagePath);
             this.block1 = new _Block2.default(new createjs.Point(), imagePath);
@@ -62,7 +58,32 @@ var TetrisShape = function (_createjs$Container) {
             this.updateShapeBlockPositions();
             this.drawShape();
 
-            //this.cache(this.x, this.y, this.getBounds().width, this.getBounds().height);
+            //timer
+            this.handleTick = this.handleTick.bind(this);
+            createjs.Ticker.addEventListener("tick", this.handleTick);
+        }
+    }, {
+        key: "handleTick",
+        value: function handleTick(event) {
+            if (this && event) {
+                this.block0.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block1.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block2.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block3.y += event.delta / 1000 * this.shapeData.moveStep;
+
+                //this.y += event.delta / 1000 * this.shapeData.moveStep;
+            }
+        }
+    }, {
+        key: "rotate",
+        value: function rotate() {
+            this.shapeData.rotationValue += 1;
+        }
+    }, {
+        key: "onRotationStateChanged",
+        value: function onRotationStateChanged(event) {
+            this.updateShapeBlockPositions();
+            this.drawShape();
         }
     }, {
         key: "drawShape",
@@ -75,7 +96,7 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "updateShapeBlockPositions",
         value: function updateShapeBlockPositions() {
-            var blockPoints = this._shapeData.currentBlocks;
+            var blockPoints = this.shapeData.currentBlocks;
             this.actualBlockPositions.length = 0;
 
             for (var i = 0; i < blockPoints.length; i++) {

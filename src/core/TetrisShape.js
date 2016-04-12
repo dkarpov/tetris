@@ -8,21 +8,17 @@ class TetrisShape extends createjs.Container {
         super();
 
         this.actualBlockPositions = [];
-        this._shapeData = new ShapeData(shapeName);
-        this._shapeData.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
+        this.shapeData = new ShapeData(shapeName);
+
+        this.onRotationStateChanged = this.onRotationStateChanged.bind(this);
+        this.shapeData.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
 
         this.init();
     }
 
-    onRotationStateChanged(event)
-    {
-        this.updateShapeBlockPositions();
-        this.drawShape();
-    }
-
     init()
     {
-        const imagePath = this._shapeData.imagePath;
+        const imagePath = this.shapeData.imagePath;
 
         this.block0 = new Block(new createjs.Point(), imagePath);
         this.block1 = new Block(new createjs.Point(), imagePath);
@@ -37,7 +33,33 @@ class TetrisShape extends createjs.Container {
         this.updateShapeBlockPositions();
         this.drawShape();
 
-        //this.cache(this.x, this.y, this.getBounds().width, this.getBounds().height);
+        //timer
+        this.handleTick = this.handleTick.bind(this);
+        createjs.Ticker.addEventListener("tick", this.handleTick);
+    }
+
+    handleTick(event)
+    {
+        if (this && event)
+        {
+            this.block0.y += event.delta / 1000 * this.shapeData.moveStep;
+            this.block1.y += event.delta / 1000 * this.shapeData.moveStep;
+            this.block2.y += event.delta / 1000 * this.shapeData.moveStep;
+            this.block3.y += event.delta / 1000 * this.shapeData.moveStep;
+
+            //this.y += event.delta / 1000 * this.shapeData.moveStep;
+        }
+    }
+
+    rotate()
+    {
+        this.shapeData.rotationValue += 1;
+    }
+
+    onRotationStateChanged(event)
+    {
+        this.updateShapeBlockPositions();
+        this.drawShape();
     }
 
     drawShape()
@@ -50,7 +72,7 @@ class TetrisShape extends createjs.Container {
 
     updateShapeBlockPositions()
     {
-        let blockPoints = this._shapeData.currentBlocks;
+        let blockPoints = this.shapeData.currentBlocks;
         this.actualBlockPositions.length = 0;
 
         for (let i = 0; i < blockPoints.length; i++)

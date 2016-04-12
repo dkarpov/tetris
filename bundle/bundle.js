@@ -9,30 +9,101 @@ var _ShapeData = require('./core/model/ShapeData');
 
 var _ShapeData2 = _interopRequireDefault(_ShapeData);
 
+var _Block = require('./core/view/Block');
+
+var _Block2 = _interopRequireDefault(_Block);
+
 function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
+    return obj && obj.__esModule ? obj : { default: obj };
 }
 
 // Init stage
 var stage = new createjs.Stage("demo");
 
-var tetrisShape = new _TetrisShape2.default(_ShapeData2.default.J);
-tetrisShape.x = 50;
-tetrisShape.y = 50;
+var allShapes = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
+var randomShape = parseInt(Math.random() * allShapes.length);
+var tetrisShape = new _TetrisShape2.default(allShapes[randomShape]);
+var shapeColumn = 5;
+var shapeRaw = -4;
 
+var backgroundImg = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
+var backgroundCont = new createjs.Container();
+var fieldArray;
+
+stage.addChild(backgroundCont);
 stage.addChild(tetrisShape);
 stage.update();
 
-console.log(tetrisShape.actualBlockPositions);
-console.log(tetrisShape.getBounds());
+populateField();
+moveShape();
 
-/*console.log(tetrisShape.width);
-console.log(tetrisShape.height);*/
+document.onkeydown = keyPressed;
 
-// Ticker
+//console.log(tetrisShape.actualBlockPositions);
+//console.log(tetrisShape.getBounds());
+
+function moveShape() {
+    tetrisShape.x = shapeColumn * _Block2.default.BLOCK_SIZE;
+    tetrisShape.y = shapeRaw * _Block2.default.BLOCK_SIZE;
+    stage.update();
+}
+
+function populateField() {
+    fieldArray = [];
+    var image;
+    for (var i = 0; i < 14; i++) {
+        fieldArray[i] = [];
+        for (var j = 0; j < 22; j++) {
+            fieldArray[i][j] = 0;
+            image = backgroundImg.clone();
+            image.x = i * _Block2.default.BLOCK_SIZE;
+            image.y = j * _Block2.default.BLOCK_SIZE;
+            backgroundCont.addChild(image);
+        }
+    }
+}
+
+function keyPressed(event) {
+    switch (event.keyCode) {
+        case 37:
+            shapeColumn--;
+            break;
+        case 39:
+            shapeColumn++;
+            break;
+        case 38:
+            tetrisShape.rotate();
+            break;
+        case 40:
+            shapeRaw++;
+            break;
+    }
+
+    moveShape();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////TEST ZONE/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Ticker experiments
+//createjs.Ticker.setInterval(25);
+createjs.Ticker.setFPS(30);
+
 createjs.Ticker.addEventListener("tick", stage);
+//createjs.Ticker.addEventListener("tick", handleTick);
 
-},{"./core/TetrisShape":2,"./core/model/ShapeData":3}],2:[function(require,module,exports){
+function handleTick(event) {
+    // time based animation
+    tetrisShape.x += event.delta / 1000 * 30;
+
+    //fps based animation
+    //tetrisShape.x += 30;
+
+    if (tetrisShape.x > stage.canvas.width) tetrisShape.x = 0;
+}
+
+},{"./core/TetrisShape":2,"./core/model/ShapeData":3,"./core/view/Block":4}],2:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -90,23 +161,19 @@ var TetrisShape = function (_createjs$Container) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TetrisShape).call(this));
 
         _this.actualBlockPositions = [];
-        _this._shapeData = new _ShapeData2.default(shapeName);
-        _this._shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
+        _this.shapeData = new _ShapeData2.default(shapeName);
+
+        _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
+        _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
         _this.init();
         return _this;
     }
 
     _createClass(TetrisShape, [{
-        key: "onRotationStateChanged",
-        value: function onRotationStateChanged(event) {
-            this.updateShapeBlockPositions();
-            this.drawShape();
-        }
-    }, {
         key: "init",
         value: function init() {
-            var imagePath = this._shapeData.imagePath;
+            var imagePath = this.shapeData.imagePath;
 
             this.block0 = new _Block2.default(new createjs.Point(), imagePath);
             this.block1 = new _Block2.default(new createjs.Point(), imagePath);
@@ -121,7 +188,32 @@ var TetrisShape = function (_createjs$Container) {
             this.updateShapeBlockPositions();
             this.drawShape();
 
-            //this.cache(this.x, this.y, this.getBounds().width, this.getBounds().height);
+            //timer
+            this.handleTick = this.handleTick.bind(this);
+            createjs.Ticker.addEventListener("tick", this.handleTick);
+        }
+    }, {
+        key: "handleTick",
+        value: function handleTick(event) {
+            if (this && event) {
+                this.block0.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block1.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block2.y += event.delta / 1000 * this.shapeData.moveStep;
+                this.block3.y += event.delta / 1000 * this.shapeData.moveStep;
+
+                //this.y += event.delta / 1000 * this.shapeData.moveStep;
+            }
+        }
+    }, {
+        key: "rotate",
+        value: function rotate() {
+            this.shapeData.rotationValue += 1;
+        }
+    }, {
+        key: "onRotationStateChanged",
+        value: function onRotationStateChanged(event) {
+            this.updateShapeBlockPositions();
+            this.drawShape();
         }
     }, {
         key: "drawShape",
@@ -134,7 +226,7 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "updateShapeBlockPositions",
         value: function updateShapeBlockPositions() {
-            var blockPoints = this._shapeData.currentBlocks;
+            var blockPoints = this.shapeData.currentBlocks;
             this.actualBlockPositions.length = 0;
 
             for (var i = 0; i < blockPoints.length; i++) {
@@ -187,64 +279,53 @@ function _inherits(subClass, superClass) {
     }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
-var ROTATION_STATE_CHANGED = "rotationStateChanged";
-var IMAGE_PATH = "./images/";
-
-var J = 'J';
-var L = 'L';
-var I = 'I';
-var T = 'T';
-var O = 'O';
-var S = 'S';
-var Z = 'Z';
-
 var ShapeData = function (_createjs$EventDispat) {
     _inherits(ShapeData, _createjs$EventDispat);
 
     _createClass(ShapeData, null, [{
         key: "ROTATION_STATE_CHANGED",
         get: function get() {
-            return ROTATION_STATE_CHANGED;
+            return "rotationStateChanged";
         }
     }, {
         key: "IMAGE_PATH",
         get: function get() {
-            return IMAGE_PATH;
+            return "./images/";
         }
     }, {
         key: "J",
         get: function get() {
-            return J;
+            return "J";
         }
     }, {
         key: "L",
         get: function get() {
-            return L;
+            return "L";
         }
     }, {
         key: "I",
         get: function get() {
-            return I;
+            return "I";
         }
     }, {
         key: "T",
         get: function get() {
-            return T;
+            return "T";
         }
     }, {
         key: "O",
         get: function get() {
-            return O;
+            return "O";
         }
     }, {
         key: "S",
         get: function get() {
-            return S;
+            return "S";
         }
     }, {
         key: "Z",
         get: function get() {
-            return Z;
+            return "Z";
         }
     }]);
 
@@ -254,6 +335,7 @@ var ShapeData = function (_createjs$EventDispat) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ShapeData).call(this));
 
         _this.imagePath = "";
+        _this.moveStep = 16;
 
         _this._rotation0 = [];
         _this._rotation1 = [];
@@ -271,6 +353,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeData",
         value: function createShapeData(type) {
             //instead of factory method
+            console.log("createShapeData " + type);
             this["createShape" + type]();
         }
 
@@ -280,7 +363,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeL",
         value: function createShapeL() {
             var imageName = "block_orange.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
@@ -291,7 +374,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeJ",
         value: function createShapeJ() {
             var imageName = "block_blue.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
@@ -302,7 +385,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeI",
         value: function createShapeI() {
             var imageName = "block_cyan.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]];
@@ -313,7 +396,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeT",
         value: function createShapeT() {
             var imageName = "block_purple.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 1, 0, 0]];
@@ -324,7 +407,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeS",
         value: function createShapeS() {
             var imageName = "block_green.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0]];
@@ -335,7 +418,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeZ",
         value: function createShapeZ() {
             var imageName = "block_red.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
@@ -346,7 +429,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeO",
         value: function createShapeO() {
             var imageName = "block_yellow.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
@@ -367,7 +450,7 @@ var ShapeData = function (_createjs$EventDispat) {
             if (value > 3 || 0 > value) value = 0;
 
             this._rotationValue = value;
-            dispatchEvent(new Event(ROTATION_STATE_CHANGED));
+            this.dispatchEvent(new Event(ShapeData.ROTATION_STATE_CHANGED));
         }
     }]);
 
@@ -416,12 +499,19 @@ function _inherits(subClass, superClass) {
 var Block = function (_createjs$Bitmap) {
     _inherits(Block, _createjs$Bitmap);
 
+    _createClass(Block, null, [{
+        key: "BLOCK_SIZE",
+        get: function get() {
+            return 16;
+        }
+    }]);
+
     function Block(position, imagePath) {
         _classCallCheck(this, Block);
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Block).call(this, imagePath));
 
-        _this.size = 16;
+        _this.size = Block.BLOCK_SIZE;
         _this._position = position;
         return _this;
     }

@@ -12,64 +12,53 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ROTATION_STATE_CHANGED = "rotationStateChanged";
-var IMAGE_PATH = "./images/";
-
-var J = 'J';
-var L = 'L';
-var I = 'I';
-var T = 'T';
-var O = 'O';
-var S = 'S';
-var Z = 'Z';
-
 var ShapeData = function (_createjs$EventDispat) {
     _inherits(ShapeData, _createjs$EventDispat);
 
     _createClass(ShapeData, null, [{
         key: "ROTATION_STATE_CHANGED",
         get: function get() {
-            return ROTATION_STATE_CHANGED;
+            return "rotationStateChanged";
         }
     }, {
         key: "IMAGE_PATH",
         get: function get() {
-            return IMAGE_PATH;
+            return "./images/";
         }
     }, {
         key: "J",
         get: function get() {
-            return J;
+            return "J";
         }
     }, {
         key: "L",
         get: function get() {
-            return L;
+            return "L";
         }
     }, {
         key: "I",
         get: function get() {
-            return I;
+            return "I";
         }
     }, {
         key: "T",
         get: function get() {
-            return T;
+            return "T";
         }
     }, {
         key: "O",
         get: function get() {
-            return O;
+            return "O";
         }
     }, {
         key: "S",
         get: function get() {
-            return S;
+            return "S";
         }
     }, {
         key: "Z",
         get: function get() {
-            return Z;
+            return "Z";
         }
     }]);
 
@@ -79,6 +68,7 @@ var ShapeData = function (_createjs$EventDispat) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ShapeData).call(this));
 
         _this.imagePath = "";
+        _this.moveStep = 16;
 
         _this._rotation0 = [];
         _this._rotation1 = [];
@@ -96,6 +86,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeData",
         value: function createShapeData(type) {
             //instead of factory method
+            console.log("createShapeData " + type);
             this["createShape" + type]();
         }
 
@@ -105,7 +96,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeL",
         value: function createShapeL() {
             var imageName = "block_orange.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
@@ -116,7 +107,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeJ",
         value: function createShapeJ() {
             var imageName = "block_blue.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]];
@@ -127,7 +118,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeI",
         value: function createShapeI() {
             var imageName = "block_cyan.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]];
@@ -138,7 +129,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeT",
         value: function createShapeT() {
             var imageName = "block_purple.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 1, 0, 0]];
@@ -149,7 +140,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeS",
         value: function createShapeS() {
             var imageName = "block_green.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0]];
@@ -160,7 +151,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeZ",
         value: function createShapeZ() {
             var imageName = "block_red.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
@@ -171,7 +162,7 @@ var ShapeData = function (_createjs$EventDispat) {
         key: "createShapeO",
         value: function createShapeO() {
             var imageName = "block_yellow.png";
-            this.imagePath = IMAGE_PATH + imageName;
+            this.imagePath = ShapeData.IMAGE_PATH + imageName;
 
             this._rotation0 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
             this._rotation1 = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]];
@@ -192,7 +183,7 @@ var ShapeData = function (_createjs$EventDispat) {
             if (value > 3 || 0 > value) value = 0;
 
             this._rotationValue = value;
-            dispatchEvent(new Event(ROTATION_STATE_CHANGED));
+            this.dispatchEvent(new Event(ShapeData.ROTATION_STATE_CHANGED));
         }
     }]);
 

@@ -1,10 +1,12 @@
 class Block extends createjs.Bitmap
 {
+    static get BLOCK_SIZE() {return 16; }
+
     constructor(position, imagePath)
     {
         super(imagePath);
 
-        this.size = 16;
+        this.size = Block.BLOCK_SIZE;
         this._position = position;
     }
 
