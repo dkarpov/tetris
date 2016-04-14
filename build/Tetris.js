@@ -12,90 +12,114 @@ var _Block = require('./core/view/Block');
 
 var _Block2 = _interopRequireDefault(_Block);
 
+var _MovementController = require('./core/MovementController.js');
+
+var _MovementController2 = _interopRequireDefault(_MovementController);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // Init stage
-var stage = new createjs.Stage("demo");
+var STAGE = new createjs.Stage("demo");
+var LEFT = "LEFT";
+var RIGHT = "RIGHT";
+var DOWN = "DOWN";
+var ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
+var BACKGROUND_IMG = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
+var FIELD_WIDTH = 14;
+var FIELD_HEIGHT = 22;
+var defaultShapeColumn = 5;
+var defaultShapeRaw = -4;
 
-var allShapes = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
-var randomShape = parseInt(Math.random() * allShapes.length);
-var tetrisShape = new _TetrisShape2.default(allShapes[randomShape]);
-var shapeColumn = 5;
-var shapeRaw = -4;
-
-var backgroundImg = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
-var backgroundCont = new createjs.Container();
-var fieldArray;
-
-stage.addChild(backgroundCont);
-stage.addChild(tetrisShape);
-stage.update();
-
-populateField();
-moveShape();
+var randomShape = parseInt(Math.random() * ALL_SHAPES.length);
+var moveController = new _MovementController2.default();
+var currentTetrisShape;
+var backgroundCont;
+var fieldGridArr;
 
 document.onkeydown = keyPressed;
 
-//console.log(tetrisShape.actualBlockPositions);
-//console.log(tetrisShape.getBounds());
+initField();
 
-function moveShape() {
-    tetrisShape.x = shapeColumn * _Block2.default.BLOCK_SIZE;
-    tetrisShape.y = shapeRaw * _Block2.default.BLOCK_SIZE;
-    stage.update();
+function initField() {
+    drawField();
+    createShape();
+    moveShape();
 }
 
-function populateField() {
-    fieldArray = [];
+function createShape() {
+    currentTetrisShape = new _TetrisShape2.default(ALL_SHAPES[randomShape]);
+    currentTetrisShape.row = defaultShapeRaw;
+    currentTetrisShape.column = defaultShapeColumn;
+
+    moveController.shape = currentTetrisShape;
+    moveController.gameField = fieldGridArr;
+
+    STAGE.addChild(currentTetrisShape);
+    STAGE.update();
+}
+
+function drawField() {
+    backgroundCont = new createjs.Container();
+    // populate filed grid array
+    fieldGridArr = [];
     var image;
-    for (var i = 0; i < 14; i++) {
-        fieldArray[i] = [];
-        for (var j = 0; j < 22; j++) {
-            fieldArray[i][j] = 0;
-            image = backgroundImg.clone();
+    for (var i = 0; i < FIELD_WIDTH; i++) {
+        fieldGridArr[i] = [];
+        for (var j = 0; j < FIELD_HEIGHT; j++) {
+            fieldGridArr[i][j] = 0;
+            image = BACKGROUND_IMG.clone();
             image.x = i * _Block2.default.BLOCK_SIZE;
             image.y = j * _Block2.default.BLOCK_SIZE;
             backgroundCont.addChild(image);
         }
     }
+
+    STAGE.addChild(backgroundCont);
+    STAGE.update();
+}
+
+function moveShape(value) {
+    moveController.tryMoveShape(value);
+    STAGE.update();
 }
 
 function keyPressed(event) {
     switch (event.keyCode) {
         case 37:
-            shapeColumn--;
+            moveShape(_MovementController2.default.LEFT);
             break;
         case 39:
-            shapeColumn++;
+            moveShape(_MovementController2.default.RIGHT);
             break;
         case 38:
-            tetrisShape.rotate();
+            moveShape(_MovementController2.default.ROTATE);
             break;
         case 40:
-            shapeRaw++;
+            moveShape(_MovementController2.default.DOWN);
             break;
     }
-
-    moveShape();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////TEST ZONE/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//console.log(currentTetrisShape.actualBlockPositions);
+//console.log(currentTetrisShape.getBounds());
+
 // Ticker experiments
 //createjs.Ticker.setInterval(25);
 createjs.Ticker.setFPS(30);
 
-createjs.Ticker.addEventListener("tick", stage);
+createjs.Ticker.addEventListener("tick", STAGE);
 //createjs.Ticker.addEventListener("tick", handleTick);
 
 function handleTick(event) {
     // time based animation
-    tetrisShape.x += event.delta / 1000 * 30;
+    currentTetrisShape.x += event.delta / 1000 * 30;
 
     //fps based animation
-    //tetrisShape.x += 30;
+    //currentTetrisShape.x += 30;
 
-    if (tetrisShape.x > stage.canvas.width) tetrisShape.x = 0;
+    if (currentTetrisShape.x > STAGE.canvas.width) currentTetrisShape.x = 0;
 }

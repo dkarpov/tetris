@@ -36,6 +36,9 @@ var TetrisShape = function (_createjs$Container) {
         _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
         _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
+        _this.row;
+        _this.column;
+
         _this.init();
         return _this;
     }
@@ -56,11 +59,11 @@ var TetrisShape = function (_createjs$Container) {
             this.addChild(this.block3);
 
             this.updateShapeBlockPositions();
-            this.drawShape();
+            this.drawShapeBlocks();
 
             //timer
-            this.handleTick = this.handleTick.bind(this);
-            createjs.Ticker.addEventListener("tick", this.handleTick);
+            //this.handleTick = this.handleTick.bind(this);
+            //createjs.Ticker.addEventListener("tick", this.handleTick);
         }
     }, {
         key: "handleTick",
@@ -83,11 +86,11 @@ var TetrisShape = function (_createjs$Container) {
         key: "onRotationStateChanged",
         value: function onRotationStateChanged(event) {
             this.updateShapeBlockPositions();
-            this.drawShape();
+            this.drawShapeBlocks();
         }
     }, {
-        key: "drawShape",
-        value: function drawShape() {
+        key: "drawShapeBlocks",
+        value: function drawShapeBlocks() {
             this.block0.updatePosition(this.actualBlockPositions[0]);
             this.block1.updatePosition(this.actualBlockPositions[1]);
             this.block2.updatePosition(this.actualBlockPositions[2]);
@@ -104,6 +107,12 @@ var TetrisShape = function (_createjs$Container) {
                     if (blockPoints[i][j] > 0) this.actualBlockPositions[this.actualBlockPositions.length] = new createjs.Point(j, i);
                 }
             }
+        }
+    }, {
+        key: "moveShape",
+        value: function moveShape() {
+            this.x = this.column * _Block2.default.BLOCK_SIZE;
+            this.y = this.row * _Block2.default.BLOCK_SIZE;
         }
     }]);
 

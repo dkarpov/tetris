@@ -55,4 +55,4 @@ var Block = function (_createjs$Bitmap) {
     return Block;
 }(createjs.Bitmap);
 
-exports.default = createjs.promote(Block, "Shape");
+exports.default = createjs.promote(Block, "Bitmap");

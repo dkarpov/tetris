@@ -17,6 +17,9 @@ class ShapeData extends createjs.EventDispatcher
         this.imagePath = "";
         this.moveStep = 16;
 
+        this.row;
+        this.column;
+
         this._rotation0 = [];
         this._rotation1 = [];
         this._rotation2 = [];

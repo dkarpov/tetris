@@ -70,6 +70,9 @@ var ShapeData = function (_createjs$EventDispat) {
         _this.imagePath = "";
         _this.moveStep = 16;
 
+        _this.row;
+        _this.column;
+
         _this._rotation0 = [];
         _this._rotation1 = [];
         _this._rotation2 = [];

@@ -13,97 +13,244 @@ var _Block = require('./core/view/Block');
 
 var _Block2 = _interopRequireDefault(_Block);
 
+var _MovementController = require('./core/MovementController.js');
+
+var _MovementController2 = _interopRequireDefault(_MovementController);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
 
 // Init stage
-var stage = new createjs.Stage("demo");
+var STAGE = new createjs.Stage("demo");
+var LEFT = "LEFT";
+var RIGHT = "RIGHT";
+var DOWN = "DOWN";
+var ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
+var BACKGROUND_IMG = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
+var FIELD_WIDTH = 14;
+var FIELD_HEIGHT = 22;
+var defaultShapeColumn = 5;
+var defaultShapeRaw = -4;
 
-var allShapes = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
-var randomShape = parseInt(Math.random() * allShapes.length);
-var tetrisShape = new _TetrisShape2.default(allShapes[randomShape]);
-var shapeColumn = 5;
-var shapeRaw = -4;
-
-var backgroundImg = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
-var backgroundCont = new createjs.Container();
-var fieldArray;
-
-stage.addChild(backgroundCont);
-stage.addChild(tetrisShape);
-stage.update();
-
-populateField();
-moveShape();
+var randomShape = parseInt(Math.random() * ALL_SHAPES.length);
+var moveController = new _MovementController2.default();
+var currentTetrisShape;
+var backgroundCont;
+var fieldGridArr;
 
 document.onkeydown = keyPressed;
 
-//console.log(tetrisShape.actualBlockPositions);
-//console.log(tetrisShape.getBounds());
+initField();
 
-function moveShape() {
-    tetrisShape.x = shapeColumn * _Block2.default.BLOCK_SIZE;
-    tetrisShape.y = shapeRaw * _Block2.default.BLOCK_SIZE;
-    stage.update();
+function initField() {
+    drawField();
+    createShape();
+    moveShape();
 }
 
-function populateField() {
-    fieldArray = [];
+function createShape() {
+    currentTetrisShape = new _TetrisShape2.default(ALL_SHAPES[randomShape]);
+    currentTetrisShape.row = defaultShapeRaw;
+    currentTetrisShape.column = defaultShapeColumn;
+
+    moveController.shape = currentTetrisShape;
+    moveController.gameField = fieldGridArr;
+
+    STAGE.addChild(currentTetrisShape);
+    STAGE.update();
+}
+
+function drawField() {
+    backgroundCont = new createjs.Container();
+    // populate filed grid array
+    fieldGridArr = [];
     var image;
-    for (var i = 0; i < 14; i++) {
-        fieldArray[i] = [];
-        for (var j = 0; j < 22; j++) {
-            fieldArray[i][j] = 0;
-            image = backgroundImg.clone();
+    for (var i = 0; i < FIELD_WIDTH; i++) {
+        fieldGridArr[i] = [];
+        for (var j = 0; j < FIELD_HEIGHT; j++) {
+            fieldGridArr[i][j] = 0;
+            image = BACKGROUND_IMG.clone();
             image.x = i * _Block2.default.BLOCK_SIZE;
             image.y = j * _Block2.default.BLOCK_SIZE;
             backgroundCont.addChild(image);
         }
     }
+
+    STAGE.addChild(backgroundCont);
+    STAGE.update();
+}
+
+function moveShape(value) {
+    moveController.tryMoveShape(value);
+    STAGE.update();
 }
 
 function keyPressed(event) {
     switch (event.keyCode) {
         case 37:
-            shapeColumn--;
+            moveShape(_MovementController2.default.LEFT);
             break;
         case 39:
-            shapeColumn++;
+            moveShape(_MovementController2.default.RIGHT);
             break;
         case 38:
-            tetrisShape.rotate();
+            moveShape(_MovementController2.default.ROTATE);
             break;
         case 40:
-            shapeRaw++;
+            moveShape(_MovementController2.default.DOWN);
             break;
     }
-
-    moveShape();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////TEST ZONE/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//console.log(currentTetrisShape.actualBlockPositions);
+//console.log(currentTetrisShape.getBounds());
+
 // Ticker experiments
 //createjs.Ticker.setInterval(25);
 createjs.Ticker.setFPS(30);
 
-createjs.Ticker.addEventListener("tick", stage);
+createjs.Ticker.addEventListener("tick", STAGE);
 //createjs.Ticker.addEventListener("tick", handleTick);
 
 function handleTick(event) {
     // time based animation
-    tetrisShape.x += event.delta / 1000 * 30;
+    currentTetrisShape.x += event.delta / 1000 * 30;
 
     //fps based animation
-    //tetrisShape.x += 30;
+    //currentTetrisShape.x += 30;
 
-    if (tetrisShape.x > stage.canvas.width) tetrisShape.x = 0;
+    if (currentTetrisShape.x > STAGE.canvas.width) currentTetrisShape.x = 0;
 }
 
-},{"./core/TetrisShape":2,"./core/model/ShapeData":3,"./core/view/Block":4}],2:[function(require,module,exports){
+},{"./core/MovementController.js":2,"./core/TetrisShape":3,"./core/model/ShapeData":4,"./core/view/Block":5}],2:[function(require,module,exports){
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+function _possibleConstructorReturn(self, call) {
+    if (!self) {
+        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+var MovementController = function (_createjs$EventDispat) {
+    _inherits(MovementController, _createjs$EventDispat);
+
+    _createClass(MovementController, null, [{
+        key: "LEFT",
+        get: function get() {
+            return "LEFT";
+        }
+    }, {
+        key: "RIGHT",
+        get: function get() {
+            return "RIGHT";
+        }
+    }, {
+        key: "DOWN",
+        get: function get() {
+            return "DOWN";
+        }
+    }, {
+        key: "ROTATE",
+        get: function get() {
+            return "ROTATE";
+        }
+    }]);
+
+    function MovementController() {
+        _classCallCheck(this, MovementController);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(MovementController).call(this));
+
+        _this.gameField;
+        _this.shape;
+        return _this;
+    }
+
+    _createClass(MovementController, [{
+        key: "tryMoveShape",
+        value: function tryMoveShape(direction) {
+            if (direction == MovementController.LEFT && this.canMove(this.shape.row, this.shape.column - 1)) {
+                this.shape.column--;
+            } else if (direction == MovementController.RIGHT && this.canMove(this.shape.row, this.shape.column + 1)) {
+                this.shape.column++;
+            } else if (direction == MovementController.DOWN && this.canMove(this.shape.row + 1, this.shape.column)) {
+                this.shape.row++;
+            } else if (direction == MovementController.ROTATE) {
+                this.shape.rotate();
+            }
+
+            this.shape.moveShape();
+        }
+    }, {
+        key: "canMove",
+        value: function canMove(row, column) {
+            var blockPoints = this.shape.shapeData.currentBlocks;
+            var canMove = true;
+
+            for (var i = 0; i < blockPoints.length; i++) {
+                for (var j = 0; j < blockPoints[i].length; j++) {
+                    if (blockPoints[i][j] == 1) {
+                        if (column + j < 0) {
+                            canMove = false;
+                            return canMove;
+                            //break;
+                        } else if (column + j > 13) {
+                                canMove = false;
+                                return canMove;
+                                //break;
+                            }
+
+                        if (row + i > 21) {
+                            canMove = false;
+                            return canMove;
+                            //break;
+                        }
+                    }
+                }
+            }
+            return canMove;
+        }
+    }]);
+
+    return MovementController;
+}(createjs.EventDispatcher);
+
+exports.default = MovementController;
+
+},{}],3:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -166,6 +313,9 @@ var TetrisShape = function (_createjs$Container) {
         _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
         _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
+        _this.row;
+        _this.column;
+
         _this.init();
         return _this;
     }
@@ -186,11 +336,11 @@ var TetrisShape = function (_createjs$Container) {
             this.addChild(this.block3);
 
             this.updateShapeBlockPositions();
-            this.drawShape();
+            this.drawShapeBlocks();
 
             //timer
-            this.handleTick = this.handleTick.bind(this);
-            createjs.Ticker.addEventListener("tick", this.handleTick);
+            //this.handleTick = this.handleTick.bind(this);
+            //createjs.Ticker.addEventListener("tick", this.handleTick);
         }
     }, {
         key: "handleTick",
@@ -213,11 +363,11 @@ var TetrisShape = function (_createjs$Container) {
         key: "onRotationStateChanged",
         value: function onRotationStateChanged(event) {
             this.updateShapeBlockPositions();
-            this.drawShape();
+            this.drawShapeBlocks();
         }
     }, {
-        key: "drawShape",
-        value: function drawShape() {
+        key: "drawShapeBlocks",
+        value: function drawShapeBlocks() {
             this.block0.updatePosition(this.actualBlockPositions[0]);
             this.block1.updatePosition(this.actualBlockPositions[1]);
             this.block2.updatePosition(this.actualBlockPositions[2]);
@@ -235,6 +385,12 @@ var TetrisShape = function (_createjs$Container) {
                 }
             }
         }
+    }, {
+        key: "moveShape",
+        value: function moveShape() {
+            this.x = this.column * _Block2.default.BLOCK_SIZE;
+            this.y = this.row * _Block2.default.BLOCK_SIZE;
+        }
     }]);
 
     return TetrisShape;
@@ -242,7 +398,7 @@ var TetrisShape = function (_createjs$Container) {
 
 exports.default = createjs.promote(TetrisShape, "Container");
 
-},{"./model/ShapeData":3,"./view/Block":4}],3:[function(require,module,exports){
+},{"./model/ShapeData":4,"./view/Block":5}],4:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -336,6 +492,9 @@ var ShapeData = function (_createjs$EventDispat) {
 
         _this.imagePath = "";
         _this.moveStep = 16;
+
+        _this.row;
+        _this.column;
 
         _this._rotation0 = [];
         _this._rotation1 = [];
@@ -459,7 +618,7 @@ var ShapeData = function (_createjs$EventDispat) {
 
 exports.default = createjs.promote(ShapeData, "EventDispatcher");
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -539,6 +698,6 @@ var Block = function (_createjs$Bitmap) {
     return Block;
 }(createjs.Bitmap);
 
-exports.default = createjs.promote(Block, "Shape");
+exports.default = createjs.promote(Block, "Bitmap");
 
 },{}]},{},[1]);

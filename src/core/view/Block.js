@@ -29,4 +29,4 @@ class Block extends createjs.Bitmap
     }
 }
 
-export default createjs.promote(Block, "Shape");
+export default createjs.promote(Block, "Bitmap");

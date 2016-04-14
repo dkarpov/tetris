@@ -1,8 +1,8 @@
 import Block from "./view/Block";
 import ShapeData from "./model/ShapeData";
 
-class TetrisShape extends createjs.Container {
-
+class TetrisShape extends createjs.Container
+{
     constructor(shapeName)
     {
         super();
@@ -12,6 +12,9 @@ class TetrisShape extends createjs.Container {
 
         this.onRotationStateChanged = this.onRotationStateChanged.bind(this);
         this.shapeData.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
+
+        this.row;
+        this.column;
 
         this.init();
     }
@@ -31,11 +34,11 @@ class TetrisShape extends createjs.Container {
         this.addChild(this.block3);
 
         this.updateShapeBlockPositions();
-        this.drawShape();
+        this.drawShapeBlocks();
 
         //timer
-        this.handleTick = this.handleTick.bind(this);
-        createjs.Ticker.addEventListener("tick", this.handleTick);
+        //this.handleTick = this.handleTick.bind(this);
+        //createjs.Ticker.addEventListener("tick", this.handleTick);
     }
 
     handleTick(event)
@@ -59,10 +62,10 @@ class TetrisShape extends createjs.Container {
     onRotationStateChanged(event)
     {
         this.updateShapeBlockPositions();
-        this.drawShape();
+        this.drawShapeBlocks();
     }
 
-    drawShape()
+    drawShapeBlocks()
     {
         this.block0.updatePosition(this.actualBlockPositions[0]);
         this.block1.updatePosition(this.actualBlockPositions[1]);
@@ -72,7 +75,7 @@ class TetrisShape extends createjs.Container {
 
     updateShapeBlockPositions()
     {
-        let blockPoints = this.shapeData.currentBlocks;
+        var blockPoints = this.shapeData.currentBlocks;
         this.actualBlockPositions.length = 0;
 
         for (let i = 0; i < blockPoints.length; i++)
@@ -83,6 +86,12 @@ class TetrisShape extends createjs.Container {
                     this.actualBlockPositions[this.actualBlockPositions.length] = new createjs.Point(j, i);
             }
         }
+    }
+    
+    moveShape()
+    {
+        this.x = this.column * Block.BLOCK_SIZE;
+        this.y = this.row * Block.BLOCK_SIZE;
     }
 }
 
