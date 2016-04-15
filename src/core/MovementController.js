@@ -28,13 +28,13 @@ class MovementController extends createjs.EventDispatcher
         {
             this.shape.column++;
         }
-        else if (direction == MovementController.DOWN && this.canMove(this.shape.row + 1, this.shape.column))
+        else if (direction == MovementController.DOWN && this.canMove(this.shape.row + 1, this.shape.column, this.shapeData.rotationValue))
         {
             this.shape.row++;
         }
         else if (direction == MovementController.ROTATE && this.canMove(this.shape.row, this.shape.column, this.shapeData.rotationValue + 1))
         {
-            this.shape.rotate();
+            this.shapeData.rotationValue += 1;
         }
 
         this.shape.moveShape();
@@ -43,8 +43,6 @@ class MovementController extends createjs.EventDispatcher
     canMove(row, column, rotation = null)
     {
         const blockPoints = rotation ?  this.shape.shapeData.getBlocksForRotaion(rotation) : this.shape.shapeData.currentBlocks;
-        //const blockPoints = this.shape.shapeData.currentBlocks;
-
         var canMove = true;
 
         for (let i = 0; i < blockPoints.length; i++)
@@ -66,16 +64,20 @@ class MovementController extends createjs.EventDispatcher
                     // collision detection
                     if (row + i > 21)
                     {
-                        if (!rotation)
+                        if (rotation != null)
+                        {
                             this.shape.collisionDetected = true;
+                        }
 
                         canMove = false;
                         return canMove;
                     }
-                    else if (this.gameField[row + i][column + j] == 1)
+                    else if ((row + i) > 0 && this.gameField[row + i][column + j] == 1)
                     {
-                        if (!rotation)
+                        if (rotation != null)
+                        {
                             this.shape.collisionDetected = true;
+                        }
 
                         canMove = false;
                         return canMove;

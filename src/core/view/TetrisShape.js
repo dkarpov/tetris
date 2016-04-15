@@ -1,11 +1,11 @@
-import Block from "./view/Block";
-import ShapeData from "./model/ShapeData";
+import Block from "./Block";
+import ShapeData from "../model/ShapeData";
 
 class TetrisShape extends createjs.Container
 {
     static get COLLISION_DETECTED() { return "collision detected"; }
     static get DEFAULT_SHAPE_COLUMN() {return 5;}
-    static get DEFAULT_SHAPE_ROW() {return 0;}
+    static get DEFAULT_SHAPE_ROW() {return -4;}
 
 
     constructor(shapeName)
@@ -42,28 +42,6 @@ class TetrisShape extends createjs.Container
 
         this.updateShapeBlockPositions();
         this.drawShapeBlocks();
-
-        //timer
-        //this.handleTick = this.handleTick.bind(this);
-        //createjs.Ticker.addEventListener("tick", this.handleTick);
-    }
-
-    handleTick(event)
-    {
-        if (this && event)
-        {
-            this.block0.y += event.delta / 1000 * this.shapeData.moveStep;
-            this.block1.y += event.delta / 1000 * this.shapeData.moveStep;
-            this.block2.y += event.delta / 1000 * this.shapeData.moveStep;
-            this.block3.y += event.delta / 1000 * this.shapeData.moveStep;
-
-            //this.y += event.delta / 1000 * this.shapeData.moveStep;
-        }
-    }
-
-    rotate()
-    {
-        this.shapeData.rotationValue += 1;
     }
 
     onRotationStateChanged(event)

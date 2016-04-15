@@ -38,7 +38,7 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "DEFAULT_SHAPE_ROW",
         get: function get() {
-            return 0;
+            return -4;
         }
     }]);
 
@@ -79,27 +79,6 @@ var TetrisShape = function (_createjs$Container) {
 
             this.updateShapeBlockPositions();
             this.drawShapeBlocks();
-
-            //timer
-            //this.handleTick = this.handleTick.bind(this);
-            //createjs.Ticker.addEventListener("tick", this.handleTick);
-        }
-    }, {
-        key: "handleTick",
-        value: function handleTick(event) {
-            if (this && event) {
-                this.block0.y += event.delta / 1000 * this.shapeData.moveStep;
-                this.block1.y += event.delta / 1000 * this.shapeData.moveStep;
-                this.block2.y += event.delta / 1000 * this.shapeData.moveStep;
-                this.block3.y += event.delta / 1000 * this.shapeData.moveStep;
-
-                //this.y += event.delta / 1000 * this.shapeData.moveStep;
-            }
-        }
-    }, {
-        key: "rotate",
-        value: function rotate() {
-            this.shapeData.rotationValue += 1;
         }
     }, {
         key: "onRotationStateChanged",

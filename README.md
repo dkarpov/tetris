@@ -1,1 +1,1 @@
-# tetris
+# Tetris created with Create JS and ES6, using babel and gulp as task runner
