@@ -2,12 +2,15 @@ import TetrisShape from './core/view/TetrisShape';
 import ShapeData from './core/model/ShapeData';
 import Block from './core/view/Block';
 import MovementController from './core/MovementController';
+import CircleButton from './misc/CircleButton';
 // Init stage
-const STAGE = new createjs.Stage("demo");
+const STAGE = new createjs.Stage("canvas");
+const canvas = document.getElementById('canvas');
 const ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
 const BACKGROUND_IMG = new createjs.Bitmap(ShapeData.IMAGE_PATH + "background.png");
 const FIELD_WIDTH = 14;
 const FIELD_HEIGHT = 22;
+const BTN_LABEL = "Play again";
 
 var speed = 1;
 var speedGear = 2;
@@ -20,6 +23,10 @@ var lockedBlocksCont;
 var fieldGridArr;
 var fieldGridLockedBlocks;
 
+var continueBtn = new CircleButton(BTN_LABEL);
+var gameOver = false;
+continueBtn.on("click", initField);
+
 //update stage on tick
 createjs.Ticker.addEventListener("tick", STAGE);
 createjs.Ticker.setFPS(60);
@@ -28,28 +35,39 @@ initField();
 
 function initField()
 {
-    //drawDemoField();
+    gameOver = false;
 
+    // just for debug
+    //drawDemoField();
     drawField();
     createShape();
     moveShape();
 
-    //TODO(dkarpov) play/pause functionality
     createjs.Ticker.addEventListener("tick", tickMoveHandler);
     document.onkeydown = keyPressed;
+    STAGE.removeChild(continueBtn);
 }
 
 function resetGame()
 {
+    gameOver = true;
+
+    currentTetrisShape.removeEventListener(TetrisShape.COLLISION_DETECTED, shapeCollisionHandler);
+    STAGE.removeChild(currentTetrisShape);
+
     currentTetrisShape = null;
     createjs.Ticker.removeEventListener("tick", tickMoveHandler);
-    document.onkeydown = null;
+
+    continueBtn.x = (canvas.width - continueBtn.getBounds().width) / 2;
+    continueBtn.y = (canvas.height - continueBtn.getBounds().height) / 2;
 
     while(lockedBlocksCont.numChildren)
         lockedBlocksCont.removeChildAt(0);
 
     while(backgroundCont.numChildren)
         backgroundCont.removeChildAt(0);
+
+    STAGE.addChild(continueBtn);
 }
 
 function createShape()
@@ -84,7 +102,7 @@ function removeShape()
         //add blocks, remove shape
         for (let j = 0; j < blockPoints[i].length; j++)
         {
-            if (blockPoints[i][j] == 1)
+            if (blockPoints[i][j] == 1 && currentTetrisShape)
             {
                 lockedBlockImage = currentTetrisShape.block0.clone();
                 lockedBlockImage.x = (currentTetrisShape.column + j) * Block.BLOCK_SIZE;
@@ -101,15 +119,18 @@ function removeShape()
                     if (0 >= currentTetrisShape.row && fieldGridArr[0].indexOf(1) > -1)
                     {
                         resetGame();
-                        initField();
                     }
                 }
             }
         }
     }
 
-    currentTetrisShape.removeEventListener(TetrisShape.COLLISION_DETECTED, shapeCollisionHandler);
-    STAGE.removeChild(currentTetrisShape);
+    // discard shape
+    if (currentTetrisShape != null)
+    {
+        currentTetrisShape.removeEventListener(TetrisShape.COLLISION_DETECTED, shapeCollisionHandler);
+        STAGE.removeChild(currentTetrisShape);
+    }
 }
 
 function resetFilledLines()
@@ -175,6 +196,8 @@ function drawField()
 
 function moveShape(value)
 {
+    if (gameOver) return;
+    
     moveController.tryMoveShape(value);
     STAGE.update();
 }
@@ -212,6 +235,9 @@ function keyPressed(event)
             break;
         case 40:
             moveShape(MovementController.DOWN);
+            break;
+        case 13:
+            if (gameOver) initField();
             break;
     }
 }

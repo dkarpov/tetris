@@ -17,16 +17,22 @@ var _MovementController = require('./core/MovementController');
 
 var _MovementController2 = _interopRequireDefault(_MovementController);
 
+var _CircleButton = require('./misc/CircleButton');
+
+var _CircleButton2 = _interopRequireDefault(_CircleButton);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
 
 // Init stage
-var STAGE = new createjs.Stage("demo");
+var STAGE = new createjs.Stage("canvas");
+var canvas = document.getElementById('canvas');
 var ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
 var BACKGROUND_IMG = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
 var FIELD_WIDTH = 14;
 var FIELD_HEIGHT = 22;
+var BTN_LABEL = "Play again";
 
 var speed = 1;
 var speedGear = 2;
@@ -39,6 +45,10 @@ var lockedBlocksCont;
 var fieldGridArr;
 var fieldGridLockedBlocks;
 
+var continueBtn = new _CircleButton2.default(BTN_LABEL);
+var gameOver = false;
+continueBtn.on("click", initField);
+
 //update stage on tick
 createjs.Ticker.addEventListener("tick", STAGE);
 createjs.Ticker.setFPS(60);
@@ -46,27 +56,36 @@ createjs.Ticker.setFPS(60);
 initField();
 
 function initField() {
-    //drawDemoField();
+    gameOver = false;
 
+    // just for debug
+    //drawDemoField();
     drawField();
     createShape();
     moveShape();
 
-    //TODO(dkarpov) play/pause functionality
     createjs.Ticker.addEventListener("tick", tickMoveHandler);
     document.onkeydown = keyPressed;
+    STAGE.removeChild(continueBtn);
 }
 
 function resetGame() {
+    gameOver = true;
+
+    currentTetrisShape.removeEventListener(_TetrisShape2.default.COLLISION_DETECTED, shapeCollisionHandler);
+    STAGE.removeChild(currentTetrisShape);
+
     currentTetrisShape = null;
     createjs.Ticker.removeEventListener("tick", tickMoveHandler);
-    document.onkeydown = null;
+
+    continueBtn.x = (canvas.width - continueBtn.getBounds().width) / 2;
+    continueBtn.y = (canvas.height - continueBtn.getBounds().height) / 2;
 
     while (lockedBlocksCont.numChildren) {
         lockedBlocksCont.removeChildAt(0);
     }while (backgroundCont.numChildren) {
         backgroundCont.removeChildAt(0);
-    }
+    }STAGE.addChild(continueBtn);
 }
 
 function createShape() {
@@ -96,7 +115,7 @@ function removeShape() {
     for (var i = 0; i < blockPoints.length; i++) {
         //add blocks, remove shape
         for (var j = 0; j < blockPoints[i].length; j++) {
-            if (blockPoints[i][j] == 1) {
+            if (blockPoints[i][j] == 1 && currentTetrisShape) {
                 lockedBlockImage = currentTetrisShape.block0.clone();
                 lockedBlockImage.x = (currentTetrisShape.column + j) * _Block2.default.BLOCK_SIZE;
                 lockedBlockImage.y = (currentTetrisShape.row + i) * _Block2.default.BLOCK_SIZE;
@@ -110,15 +129,17 @@ function removeShape() {
                     // check for game over :)
                     if (0 >= currentTetrisShape.row && fieldGridArr[0].indexOf(1) > -1) {
                         resetGame();
-                        initField();
                     }
                 }
             }
         }
     }
 
-    currentTetrisShape.removeEventListener(_TetrisShape2.default.COLLISION_DETECTED, shapeCollisionHandler);
-    STAGE.removeChild(currentTetrisShape);
+    // discard shape
+    if (currentTetrisShape != null) {
+        currentTetrisShape.removeEventListener(_TetrisShape2.default.COLLISION_DETECTED, shapeCollisionHandler);
+        STAGE.removeChild(currentTetrisShape);
+    }
 }
 
 function resetFilledLines() {
@@ -173,6 +194,8 @@ function drawField() {
 }
 
 function moveShape(value) {
+    if (gameOver) return;
+
     moveController.tryMoveShape(value);
     STAGE.update();
 }
@@ -203,6 +226,9 @@ function keyPressed(event) {
             break;
         case 40:
             moveShape(_MovementController2.default.DOWN);
+            break;
+        case 13:
+            if (gameOver) initField();
             break;
     }
 }
@@ -265,7 +291,7 @@ function handleTick(event) {
     if (currentTetrisShape.x > STAGE.canvas.width) currentTetrisShape.x = 0;
 }
 
-},{"./core/MovementController":2,"./core/model/ShapeData":3,"./core/view/Block":4,"./core/view/TetrisShape":5}],2:[function(require,module,exports){
+},{"./core/MovementController":2,"./core/model/ShapeData":3,"./core/view/Block":4,"./core/view/TetrisShape":5,"./misc/CircleButton":6}],2:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -871,4 +897,101 @@ var TetrisShape = function (_createjs$Container) {
 
 exports.default = createjs.promote(TetrisShape, "Container");
 
-},{"../model/ShapeData":3,"./Block":4}]},{},[1]);
+},{"../model/ShapeData":3,"./Block":4}],6:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+function _possibleConstructorReturn(self, call) {
+    if (!self) {
+        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+var CircleButton = function (_createjs$Container) {
+    _inherits(CircleButton, _createjs$Container);
+
+    function CircleButton() {
+        var text = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+        var color = arguments.length <= 1 || arguments[1] === undefined ? '#222' : arguments[1];
+        var radius = arguments.length <= 2 || arguments[2] === undefined ? 80 : arguments[2];
+
+        _classCallCheck(this, CircleButton);
+
+        // set props
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CircleButton).call(this));
+        // invoke Container constructor
+
+        _this.text = text;
+        _this.radius = radius;
+        _this.color = color;
+
+        // Init component
+        _this.setup();
+        return _this;
+    }
+
+    _createClass(CircleButton, [{
+        key: 'setup',
+        value: function setup() {
+            // Create a circle shape
+            var circle = new createjs.Shape();
+            circle.graphics.beginFill(this.color).drawCircle(0, 0, this.radius);
+            this.addChild(circle, txt);
+
+            // Create a Text
+            var txt = new createjs.Text(this.text, "20px Arial", 'white');
+            this.addChild(txt);
+
+            // Center text inside circle
+            txt.x = txt.getMeasuredWidth() / 2 * -1;
+            txt.y = txt.getMeasuredHeight() / 2 * -1;
+
+            console.log(this.getBounds() + "fsdfsd", this.x);
+            // FadeIn all
+            this.alpha = 0;
+            createjs.Tween.get(this).to({ alpha: 0.9 }, 1000).call(this.handleComplete);
+        }
+
+        // Dispatch an event at the end of animation
+
+    }, {
+        key: 'handleComplete',
+        value: function handleComplete() {
+            this.dispatchEvent('animationEnd');
+        }
+    }]);
+
+    return CircleButton;
+}(createjs.Container);
+
+exports.default = createjs.promote(CircleButton, "Container");
+
+},{}]},{},[1]);
