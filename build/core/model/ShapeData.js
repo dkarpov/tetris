@@ -96,6 +96,16 @@ var ShapeData = function (_createjs$EventDispat) {
         // getting current shape blocks state
 
     }, {
+        key: "getBlocksForRotaion",
+
+
+        // getting shape blocks state for concrete rotation
+        value: function getBlocksForRotaion(value) {
+            if (value > 3 || 0 > value) value = 0;
+
+            return this["_rotation" + value];
+        }
+    }, {
         key: "createShapeL",
         value: function createShapeL() {
             var imageName = "block_orange.png";

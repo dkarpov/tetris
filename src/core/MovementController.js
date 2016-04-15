@@ -1,9 +1,9 @@
 class MovementController extends createjs.EventDispatcher
 {
-    static get LEFT(){ return "LEFT";}
-    static get RIGHT(){ return "RIGHT";}
-    static get DOWN(){ return "DOWN";}
-    static get ROTATE(){ return "ROTATE";}
+    static get LEFT() {return "LEFT";}
+    static get RIGHT() {return "RIGHT";}
+    static get DOWN() {return "DOWN";}
+    static get ROTATE() {return "ROTATE";}
 
     constructor()
     {
@@ -11,6 +11,11 @@ class MovementController extends createjs.EventDispatcher
 
         this.gameField;
         this.shape;
+    }
+
+    get shapeData()
+    {
+        return this.shape.shapeData;
     }
 
     tryMoveShape(direction)
@@ -27,7 +32,7 @@ class MovementController extends createjs.EventDispatcher
         {
             this.shape.row++;
         }
-        else if (direction == MovementController.ROTATE)
+        else if (direction == MovementController.ROTATE && this.canMove(this.shape.row, this.shape.column, this.shapeData.rotationValue + 1))
         {
             this.shape.rotate();
         }
@@ -35,10 +40,11 @@ class MovementController extends createjs.EventDispatcher
         this.shape.moveShape();
     }
 
-
-    canMove(row, column)
+    canMove(row, column, rotation = null)
     {
-        var blockPoints = this.shape.shapeData.currentBlocks;
+        const blockPoints = rotation ?  this.shape.shapeData.getBlocksForRotaion(rotation) : this.shape.shapeData.currentBlocks;
+        //const blockPoints = this.shape.shapeData.currentBlocks;
+
         var canMove = true;
 
         for (let i = 0; i < blockPoints.length; i++)
@@ -51,20 +57,28 @@ class MovementController extends createjs.EventDispatcher
                     {
                         canMove = false;
                         return canMove;
-                        //break;
                     }
                     else if (column + j > 13)
                     {
                         canMove = false;
                         return canMove;
-                        //break;
                     }
-
+                    // collision detection
                     if (row + i > 21)
                     {
+                        if (!rotation)
+                            this.shape.collisionDetected = true;
+
                         canMove = false;
                         return canMove;
-                        //break;
+                    }
+                    else if (this.gameField[row + i][column + j] == 1)
+                    {
+                        if (!rotation)
+                            this.shape.collisionDetected = true;
+
+                        canMove = false;
+                        return canMove;
                     }
                 }
             }

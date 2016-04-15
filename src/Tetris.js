@@ -4,17 +4,12 @@ import Block from './core/view/Block';
 import MovementController from './core/MovementController.js';
 // Init stage
 const STAGE = new createjs.Stage("demo");
-const LEFT = "LEFT";
-const RIGHT = "RIGHT";
-const DOWN = "DOWN";
 const ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
 const BACKGROUND_IMG = new createjs.Bitmap(ShapeData.IMAGE_PATH + "background.png");
 const FIELD_WIDTH = 14;
 const FIELD_HEIGHT = 22;
-var defaultShapeColumn = 5;
-var defaultShapeRaw = -4;
 
-var randomShape = parseInt(Math.random()*ALL_SHAPES.length);
+var randomShape;
 var moveController = new MovementController();
 var currentTetrisShape;
 var backgroundCont;
@@ -31,11 +26,46 @@ function initField()
     moveShape();
 }
 
+function removeShape()
+{
+    console.log("Collision detected removeChild");
+
+    var blockPoints = currentTetrisShape.shapeData.currentBlocks;
+    var lockedBlockImage;
+
+    for (let i = 0; i < blockPoints.length; i++)
+    {
+        for (let j = 0; j < blockPoints[i].length; j++)
+        {
+            if (blockPoints[i][j] == 1)
+            {
+                lockedBlockImage = currentTetrisShape.block0.clone();
+                lockedBlockImage.x = (currentTetrisShape.column + j) * Block.BLOCK_SIZE;
+                lockedBlockImage.y = (currentTetrisShape.row + i) * Block.BLOCK_SIZE;
+                backgroundCont.addChild(lockedBlockImage);
+
+                // fill field with non empty value
+                fieldGridArr[currentTetrisShape.row + i][currentTetrisShape.column + j] = 1
+            }
+        }
+    }
+
+    currentTetrisShape.removeEventListener(TetrisShape.COLLISION_DETECTED, shapeCollisionHandler);
+    STAGE.removeChild(currentTetrisShape);
+}
 function createShape()
 {
+    randomShape = parseInt(Math.random()*ALL_SHAPES.length);
+
+    if (currentTetrisShape)
+    {
+        removeShape()
+    }
+
+    // setting up new shape
     currentTetrisShape = new TetrisShape(ALL_SHAPES[randomShape]);
-    currentTetrisShape.row = defaultShapeRaw;
-    currentTetrisShape.column = defaultShapeColumn;
+    shapeCollisionHandler = shapeCollisionHandler.bind(createShape);
+    currentTetrisShape.addEventListener(TetrisShape.COLLISION_DETECTED, shapeCollisionHandler);
 
     moveController.shape = currentTetrisShape;
     moveController.gameField = fieldGridArr;
@@ -44,21 +74,26 @@ function createShape()
     STAGE.update();
 }
 
+function shapeCollisionHandler(event)
+{
+    this();
+}
+
 function drawField()
 {
     backgroundCont = new createjs.Container();
     // populate filed grid array
     fieldGridArr = [];
     var image;
-    for (let i = 0; i < FIELD_WIDTH; i++)
+    for (let i = 0; i < FIELD_HEIGHT; i++)
     {
         fieldGridArr[i] = [];
-        for (let j = 0; j < FIELD_HEIGHT; j++)
+        for (let j = 0; j < FIELD_WIDTH; j++)
         {
             fieldGridArr[i][j] = 0;
             image = BACKGROUND_IMG.clone();
-            image.x = i * Block.BLOCK_SIZE;
-            image.y = j * Block.BLOCK_SIZE;
+            image.x = j * Block.BLOCK_SIZE;
+            image.y = i * Block.BLOCK_SIZE;
             backgroundCont.addChild(image);
         }
     }

@@ -3,6 +3,11 @@ import ShapeData from "./model/ShapeData";
 
 class TetrisShape extends createjs.Container
 {
+    static get COLLISION_DETECTED() { return "collision detected"; }
+    static get DEFAULT_SHAPE_COLUMN() {return 5;}
+    static get DEFAULT_SHAPE_ROW() {return 0;}
+
+
     constructor(shapeName)
     {
         super();
@@ -13,8 +18,10 @@ class TetrisShape extends createjs.Container
         this.onRotationStateChanged = this.onRotationStateChanged.bind(this);
         this.shapeData.addEventListener(ShapeData.ROTATION_STATE_CHANGED, this.onRotationStateChanged);
 
-        this.row;
-        this.column;
+        this.row = TetrisShape.DEFAULT_SHAPE_ROW;
+        this.column = TetrisShape.DEFAULT_SHAPE_COLUMN;
+
+        this._collisionDetected;
 
         this.init();
     }
@@ -61,9 +68,23 @@ class TetrisShape extends createjs.Container
 
     onRotationStateChanged(event)
     {
+        console.log("ROTATE");
+
         this.updateShapeBlockPositions();
         this.drawShapeBlocks();
     }
+
+    get collisionDetected()
+    {
+        return this._collisionDetected;
+    }
+
+    set collisionDetected(value)
+    {
+        this._collisionDetected = value;
+        this.dispatchEvent(new Event(TetrisShape.COLLISION_DETECTED));
+    }
+
 
     drawShapeBlocks()
     {

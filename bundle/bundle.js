@@ -23,17 +23,12 @@ function _interopRequireDefault(obj) {
 
 // Init stage
 var STAGE = new createjs.Stage("demo");
-var LEFT = "LEFT";
-var RIGHT = "RIGHT";
-var DOWN = "DOWN";
 var ALL_SHAPES = ['L', 'J', 'O', 'I', 'T', 'S', 'Z'];
 var BACKGROUND_IMG = new createjs.Bitmap(_ShapeData2.default.IMAGE_PATH + "background.png");
 var FIELD_WIDTH = 14;
 var FIELD_HEIGHT = 22;
-var defaultShapeColumn = 5;
-var defaultShapeRaw = -4;
 
-var randomShape = parseInt(Math.random() * ALL_SHAPES.length);
+var randomShape;
 var moveController = new _MovementController2.default();
 var currentTetrisShape;
 var backgroundCont;
@@ -49,10 +44,40 @@ function initField() {
     moveShape();
 }
 
+function removeShape() {
+    console.log("Collision detected removeChild");
+
+    var blockPoints = currentTetrisShape.shapeData.currentBlocks;
+    var lockedBlockImage;
+
+    for (var i = 0; i < blockPoints.length; i++) {
+        for (var j = 0; j < blockPoints[i].length; j++) {
+            if (blockPoints[i][j] == 1) {
+                lockedBlockImage = currentTetrisShape.block0.clone();
+                lockedBlockImage.x = (currentTetrisShape.column + j) * _Block2.default.BLOCK_SIZE;
+                lockedBlockImage.y = (currentTetrisShape.row + i) * _Block2.default.BLOCK_SIZE;
+                backgroundCont.addChild(lockedBlockImage);
+
+                // fill field with non empty value
+                fieldGridArr[currentTetrisShape.row + i][currentTetrisShape.column + j] = 1;
+            }
+        }
+    }
+
+    currentTetrisShape.removeEventListener(_TetrisShape2.default.COLLISION_DETECTED, shapeCollisionHandler);
+    STAGE.removeChild(currentTetrisShape);
+}
 function createShape() {
+    randomShape = parseInt(Math.random() * ALL_SHAPES.length);
+
+    if (currentTetrisShape) {
+        removeShape();
+    }
+
+    // setting up new shape
     currentTetrisShape = new _TetrisShape2.default(ALL_SHAPES[randomShape]);
-    currentTetrisShape.row = defaultShapeRaw;
-    currentTetrisShape.column = defaultShapeColumn;
+    shapeCollisionHandler = shapeCollisionHandler.bind(createShape);
+    currentTetrisShape.addEventListener(_TetrisShape2.default.COLLISION_DETECTED, shapeCollisionHandler);
 
     moveController.shape = currentTetrisShape;
     moveController.gameField = fieldGridArr;
@@ -61,18 +86,22 @@ function createShape() {
     STAGE.update();
 }
 
+function shapeCollisionHandler(event) {
+    this();
+}
+
 function drawField() {
     backgroundCont = new createjs.Container();
     // populate filed grid array
     fieldGridArr = [];
     var image;
-    for (var i = 0; i < FIELD_WIDTH; i++) {
+    for (var i = 0; i < FIELD_HEIGHT; i++) {
         fieldGridArr[i] = [];
-        for (var j = 0; j < FIELD_HEIGHT; j++) {
+        for (var j = 0; j < FIELD_WIDTH; j++) {
             fieldGridArr[i][j] = 0;
             image = BACKGROUND_IMG.clone();
-            image.x = i * _Block2.default.BLOCK_SIZE;
-            image.y = j * _Block2.default.BLOCK_SIZE;
+            image.x = j * _Block2.default.BLOCK_SIZE;
+            image.y = i * _Block2.default.BLOCK_SIZE;
             backgroundCont.addChild(image);
         }
     }
@@ -208,7 +237,7 @@ var MovementController = function (_createjs$EventDispat) {
                 this.shape.column++;
             } else if (direction == MovementController.DOWN && this.canMove(this.shape.row + 1, this.shape.column)) {
                 this.shape.row++;
-            } else if (direction == MovementController.ROTATE) {
+            } else if (direction == MovementController.ROTATE && this.canMove(this.shape.row, this.shape.column, this.shapeData.rotationValue + 1)) {
                 this.shape.rotate();
             }
 
@@ -217,7 +246,11 @@ var MovementController = function (_createjs$EventDispat) {
     }, {
         key: "canMove",
         value: function canMove(row, column) {
-            var blockPoints = this.shape.shapeData.currentBlocks;
+            var rotation = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+            var blockPoints = rotation ? this.shape.shapeData.getBlocksForRotaion(rotation) : this.shape.shapeData.currentBlocks;
+            //const blockPoints = this.shape.shapeData.currentBlocks;
+
             var canMove = true;
 
             for (var i = 0; i < blockPoints.length; i++) {
@@ -226,22 +259,31 @@ var MovementController = function (_createjs$EventDispat) {
                         if (column + j < 0) {
                             canMove = false;
                             return canMove;
-                            //break;
                         } else if (column + j > 13) {
-                                canMove = false;
-                                return canMove;
-                                //break;
-                            }
-
-                        if (row + i > 21) {
                             canMove = false;
                             return canMove;
-                            //break;
+                        }
+                        // collision detection
+                        if (row + i > 21) {
+                            if (!rotation) this.shape.collisionDetected = true;
+
+                            canMove = false;
+                            return canMove;
+                        } else if (this.gameField[row + i][column + j] == 1) {
+                            if (!rotation) this.shape.collisionDetected = true;
+
+                            canMove = false;
+                            return canMove;
                         }
                     }
                 }
             }
             return canMove;
+        }
+    }, {
+        key: "shapeData",
+        get: function get() {
+            return this.shape.shapeData;
         }
     }]);
 
@@ -302,6 +344,23 @@ function _inherits(subClass, superClass) {
 var TetrisShape = function (_createjs$Container) {
     _inherits(TetrisShape, _createjs$Container);
 
+    _createClass(TetrisShape, null, [{
+        key: "COLLISION_DETECTED",
+        get: function get() {
+            return "collision detected";
+        }
+    }, {
+        key: "DEFAULT_SHAPE_COLUMN",
+        get: function get() {
+            return 5;
+        }
+    }, {
+        key: "DEFAULT_SHAPE_ROW",
+        get: function get() {
+            return 0;
+        }
+    }]);
+
     function TetrisShape(shapeName) {
         _classCallCheck(this, TetrisShape);
 
@@ -313,8 +372,10 @@ var TetrisShape = function (_createjs$Container) {
         _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
         _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
-        _this.row;
-        _this.column;
+        _this.row = TetrisShape.DEFAULT_SHAPE_ROW;
+        _this.column = TetrisShape.DEFAULT_SHAPE_COLUMN;
+
+        _this._collisionDetected;
 
         _this.init();
         return _this;
@@ -362,6 +423,8 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "onRotationStateChanged",
         value: function onRotationStateChanged(event) {
+            console.log("ROTATE");
+
             this.updateShapeBlockPositions();
             this.drawShapeBlocks();
         }
@@ -390,6 +453,15 @@ var TetrisShape = function (_createjs$Container) {
         value: function moveShape() {
             this.x = this.column * _Block2.default.BLOCK_SIZE;
             this.y = this.row * _Block2.default.BLOCK_SIZE;
+        }
+    }, {
+        key: "collisionDetected",
+        get: function get() {
+            return this._collisionDetected;
+        },
+        set: function set(value) {
+            this._collisionDetected = value;
+            this.dispatchEvent(new Event(TetrisShape.COLLISION_DETECTED));
         }
     }]);
 
@@ -518,6 +590,15 @@ var ShapeData = function (_createjs$EventDispat) {
 
         // getting current shape blocks state
 
+    }, {
+        key: "getBlocksForRotaion",
+
+        // getting shape blocks state for concrete rotation
+        value: function getBlocksForRotaion(value) {
+            if (value > 3 || 0 > value) value = 0;
+
+            return this["_rotation" + value];
+        }
     }, {
         key: "createShapeL",
         value: function createShapeL() {

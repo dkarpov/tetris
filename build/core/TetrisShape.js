@@ -25,6 +25,23 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var TetrisShape = function (_createjs$Container) {
     _inherits(TetrisShape, _createjs$Container);
 
+    _createClass(TetrisShape, null, [{
+        key: "COLLISION_DETECTED",
+        get: function get() {
+            return "collision detected";
+        }
+    }, {
+        key: "DEFAULT_SHAPE_COLUMN",
+        get: function get() {
+            return 5;
+        }
+    }, {
+        key: "DEFAULT_SHAPE_ROW",
+        get: function get() {
+            return 0;
+        }
+    }]);
+
     function TetrisShape(shapeName) {
         _classCallCheck(this, TetrisShape);
 
@@ -36,8 +53,10 @@ var TetrisShape = function (_createjs$Container) {
         _this.onRotationStateChanged = _this.onRotationStateChanged.bind(_this);
         _this.shapeData.addEventListener(_ShapeData2.default.ROTATION_STATE_CHANGED, _this.onRotationStateChanged);
 
-        _this.row;
-        _this.column;
+        _this.row = TetrisShape.DEFAULT_SHAPE_ROW;
+        _this.column = TetrisShape.DEFAULT_SHAPE_COLUMN;
+
+        _this._collisionDetected;
 
         _this.init();
         return _this;
@@ -85,6 +104,8 @@ var TetrisShape = function (_createjs$Container) {
     }, {
         key: "onRotationStateChanged",
         value: function onRotationStateChanged(event) {
+            console.log("ROTATE");
+
             this.updateShapeBlockPositions();
             this.drawShapeBlocks();
         }
@@ -113,6 +134,15 @@ var TetrisShape = function (_createjs$Container) {
         value: function moveShape() {
             this.x = this.column * _Block2.default.BLOCK_SIZE;
             this.y = this.row * _Block2.default.BLOCK_SIZE;
+        }
+    }, {
+        key: "collisionDetected",
+        get: function get() {
+            return this._collisionDetected;
+        },
+        set: function set(value) {
+            this._collisionDetected = value;
+            this.dispatchEvent(new Event(TetrisShape.COLLISION_DETECTED));
         }
     }]);
 

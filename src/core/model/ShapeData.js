@@ -44,6 +44,15 @@ class ShapeData extends createjs.EventDispatcher
         return this["_rotation" + this._rotationValue];
     }
 
+    // getting shape blocks state for concrete rotation
+    getBlocksForRotaion(value)
+    {
+        if (value > 3 || 0 > value)
+            value = 0;
+
+        return this["_rotation" + value];
+    }
+
     get rotationValue()
     {
         return this._rotationValue;
